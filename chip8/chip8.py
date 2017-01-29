@@ -1,24 +1,33 @@
 
+class StackOverflowError(Exception):
+    pass
+
+
 class Stack:
     """ Stack object. Wraps a list. """
+    MAX_SIZE = 16
 
     def __init__(self, list_=[]):
         """ Stack initiator.
             Initiate with a given list.
             Defaults to empty list.
         """
-        self.list_ = list_
+        self._list = list_
 
     def push(self, item):
         """ Push an item onto the stack. """
-        self.list_.append(item)
+        self._list.append(item)
+        if self.size() > self.MAX_SIZE:
+            raise StackOverflowError(
+                "Only {} levels available in the stack.".format(
+                    self.MAX_SIZE))
 
     def pop(self):
         """ Pop an item off the top of the stack. """
-        return self.list_.pop()
+        return self._list.pop()
 
     def size(self):
         """ Returns the current size of the stack. """
-        return len(self.list_)
+        return len(self._list)
 
 
