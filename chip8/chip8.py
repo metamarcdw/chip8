@@ -15,7 +15,9 @@ class Stack:
         self._list = list_
 
     def push(self, item):
-        """ Push an item onto the stack. """
+        """ Push an item onto the stack.
+            Raises: chip8.StackOverflowError.
+        """
         self._list.append(item)
         if self.size() > self.MAX_SIZE:
             raise StackOverflowError(
@@ -37,5 +39,42 @@ class Stack:
     def size(self):
         """ Returns the current size of the stack. """
         return len(self._list)
+
+
+class Memory:
+    """ Memory object. Wraps a list of 4K Bytes. """
+
+    def __init__(self):
+        """ Memory initiator.
+            Initiates mem to a list of 4096 bytes.
+        """
+        self._bytes = [0x00 for x in range(0x1000)]
+
+    def _is_byte(self, byte, length=4):
+        """ Returns true if byte is int class,
+            and has a hex string <= length.
+        """
+        return isinstance(byte, int) and len(hex(byte)) <= length
+
+    def save(self, byte, address):
+        """ Saves a byte at an address in memory.
+            Raises: ValueError and IndexError.
+        """
+        if not self._is_byte(byte):
+            raise ValueError("'byte' was not a byte.")
+            # Address must not be over 5 characters (4k in hex).
+        if not self._is_byte(address, length=5):
+            raise IndexError("'address' was not formed correctly.")
+
+        self._bytes[address] = byte
+
+    def load(self, address):
+        """ Loads a byte from an address in memory.
+            Raises: IndexError.
+        """
+            # Address must not be over 5 characters (4k in hex).
+        if not self._is_byte(address, length=5):
+            raise IndexError("'address' was not formed correctly.")
+        return self._bytes[address]
 
 
