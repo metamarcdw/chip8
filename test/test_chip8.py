@@ -1,9 +1,9 @@
-from context import chip8
+from .context import chip8
 
 def test_stack_class():
     """ Tests aspects of the Stack class """
 
-    stack = chip8.chip8.Stack(["foo", "bar"])
+    stack = chip8.Stack(["foo", "bar"])
 
     list = stack.list()
     assert list == ["foo", "bar"]
