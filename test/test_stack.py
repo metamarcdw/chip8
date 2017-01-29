@@ -26,6 +26,14 @@ def test_pop_method():
     item = stack.pop()
     assert item == "baz"
     assert stack._list == ["foo", "bar"]
+    assert stack.size() == 2
+
+def test_peek_method():
+    """ Tests the Stack class' peek() method. """
+    item = stack.peek()
+    assert item == "bar"
+    assert stack._list == ["foo", "bar"]
+    assert stack.size() == 2
 
 def test_size_method():
     """ Tests the Stack class' size() method. """

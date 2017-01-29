@@ -26,6 +26,10 @@ class Stack:
         """ Pop an item off the top of the stack. """
         return self._list.pop()
 
+    def peek(self):
+        """ Returns the current item at the top of the stack. """
+        return self._list[-1]
+
     def size(self):
         """ Returns the current size of the stack. """
         return len(self._list)
