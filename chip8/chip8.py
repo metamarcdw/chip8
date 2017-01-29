@@ -30,7 +30,7 @@ class Stack:
         """ Returns the current item at the top of the stack. """
         return self._list[-1]
 
-    def list(self):
+    def list_(self):
         """ Returns the current underlying list. """
         return self._list
 

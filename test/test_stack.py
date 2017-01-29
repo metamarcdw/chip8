@@ -36,10 +36,10 @@ def test_peek_method():
     assert stack.size() == 2
 
 def test_list_method():
-    """ Tests the Stack class' list() method. """
-    list_ = stack._list
+    """ Tests the Stack class' list_() method. """
+    list_ = stack.list_()
     assert list_ == ["foo", "bar"]
-    assert list_ == stack.list()
+    assert list_ == stack._list
 
 def test_size_method():
     """ Tests the Stack class' size() method. """
