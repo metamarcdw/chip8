@@ -58,14 +58,23 @@ class Memory:
 
     def save(self, byte, address):
         """ Saves a byte at an address in memory.
-            Raises: ValueError and IndexError
+            Raises: ValueError and IndexError.
         """
-        if not self.is_byte(byte):
+        if not self._is_byte(byte):
             raise ValueError("'byte' was not a byte.")
             # Address must not be over 5 characters (4k in hex).
-        if not self.is_byte(address, length=5):
-            raise IndexError("'address' was not formed correctly")
+        if not self._is_byte(address, length=5):
+            raise IndexError("'address' was not formed correctly.")
 
         self._bytes[address] = byte
+
+    def load(self, address):
+        """ Loads a byte from an address in memory.
+            Raises: IndexError.
+        """
+            # Address must not be over 5 characters (4k in hex).
+        if not self._is_byte(address, length=5):
+            raise IndexError("'address' was not formed correctly.")
+        return self._bytes[address]
 
 
