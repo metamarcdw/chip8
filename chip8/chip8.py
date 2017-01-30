@@ -45,13 +45,15 @@ class Stack:
 
 
 class Memory:
-    """ Memory object. Wraps a list of 4K Bytes. """
+    """ Memory object. Wraps a list of 'size' Bytes.
+        'size' defaults to 4K.
+    """
 
-    def __init__(self):
+    def __init__(self, size=0x1000):
         """ Memory initializer.
-            Initializes _bytes to a list of 4096 bytes.
+            Initializes _bytes to a list of 'size' bytes.
         """
-        self._bytes = [0x00 for x in range(0x1000)]
+        self._bytes = [0x00 for x in range(size)]
 
     def _is_byte(self, byte, length=4):
         """ Returns true if byte is int class,
@@ -79,6 +81,15 @@ class Memory:
         if not self._is_byte(address, length=5):
             raise IndexError("'address' was not formed correctly.")
         return self._bytes[address]
+
+
+class Sprite(Memory):
+    """ Sprite object, wraps a list of 'size' Bytes.
+        'size' defaults to fifteen. Subclass of Memory.
+    """
+    def __init__(self, size=15):
+        """ Sprite initializer. """
+        super().__init__(size)
 
 
 class Keyboard:
@@ -126,5 +137,10 @@ class Keyboard:
                 "'{}' key does not exist.".format(key))
 
         return self._keys[key]
+
+
+class Display:
+    """ """
+    pass
 
 
