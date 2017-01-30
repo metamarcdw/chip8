@@ -2,14 +2,17 @@
 class StackOverflowError(Exception):
     pass
 
+class KeyboardError(Exception):
+    pass
+
 
 class Stack:
     """ Stack object. Wraps a list. """
     MAX_SIZE = 16
 
     def __init__(self, list_=[]):
-        """ Stack initiator.
-            Initiate with a given list.
+        """ Stack initializer.
+            Initializes to a given list.
             Defaults to empty list.
         """
         self._list = list_
@@ -45,8 +48,8 @@ class Memory:
     """ Memory object. Wraps a list of 4K Bytes. """
 
     def __init__(self):
-        """ Memory initiator.
-            Initiates mem to a list of 4096 bytes.
+        """ Memory initializer.
+            Initializes _bytes to a list of 4096 bytes.
         """
         self._bytes = [0x00 for x in range(0x1000)]
 
@@ -76,5 +79,52 @@ class Memory:
         if not self._is_byte(address, length=5):
             raise IndexError("'address' was not formed correctly.")
         return self._bytes[address]
+
+
+class Keyboard:
+    """ Keyboard object. Wraps a dict {str:boolean}. """
+    KEYS = "0123456789ABCDEF"
+
+    def __init__(self):
+        """ Keyboard initializer.
+            Initializes to a dict containing False
+            for all extant keys. """
+        self._keys = {s: False for s in self.KEYS}
+
+    def press(self, key):
+        """ Changes state of 'key' from unpressed to pressed.
+            Raises: chip8.KeyboardError.
+        """
+        if key not in self.KEYS:
+            raise KeyboardError(
+                "'{}' key does not exist.".format(key))
+        if self._keys[key]:
+            raise KeyboardError(
+                "'{}' is already pressed.".format(key))
+
+        self._keys[key] = True
+
+    def unpress(self, key):
+        """ Changes state of 'key' from pressed to unpressed.
+            Raises: chip8.KeyboardError.
+        """
+        if key not in self.KEYS:
+            raise KeyboardError(
+                "'{}' key does not exist.".format(key))
+        if not self._keys[key]:
+            raise KeyboardError(
+                "'{}' key is already unpressed.".format(key))
+
+        self._keys[key] = False
+
+    def is_pressed(self, key):
+        """ Checks whether state of 'key' is pressed or not.
+            Raises: chip8.KeyboardError.
+        """
+        if key not in self.KEYS:
+            raise KeyboardError(
+                "'{}' key does not exist.".format(key))
+
+        return self._keys[key]
 
 
