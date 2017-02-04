@@ -1,3 +1,7 @@
+from bitstring import BitArray
+
+import pdb  #<-- REMOVE ME
+
 
 class StackOverflowError(Exception):
     pass
@@ -83,13 +87,28 @@ class Memory:
         return self._bytes[address]
 
 
+class Registers(Memory):
+    """ Memory object.
+        Specifically 16 individual bytes of memory.
+    """
+    def __init__(self):
+        super().__init__(size=16)
+
+
 class Sprite(Memory):
     """ Sprite object, wraps a list of 'size' Bytes.
         'size' defaults to fifteen. Subclass of Memory.
     """
+    MAX_SIZE = 15
     def __init__(self, size=15):
         """ Sprite initializer. """
+        if size > self.MAX_SIZE:
+            raise Exception("Sprite length too damn high!")
         super().__init__(size)
+
+    def size(self):
+        """ Returns the size in bytes. """
+        return len(self._bytes)
 
 
 class Keyboard:
@@ -140,7 +159,82 @@ class Keyboard:
 
 
 class Display:
-    """ """
-    FONT = {}
+    """ Wraps a list of BitArrays, 64X32 bits. """
+    WIDTH = 64
+    HEIGHT = 32
+    GLYPHS = "0123456789ABCDEF"
+    FONT = {
+        "0": "F999F", "1": "26227", "2": "F1F8F", "3": "F1F1F",
+        "4": "99F11", "5": "F8F1F", "6": "F8F9F", "7": "F1244",
+        "8": "F9F9F", "9": "F9F1F", "A": "F9F99", "B": "E9E9E",
+        "C": "F888F", "D": "E999E", "E": "F8F8F", "F": "F8F88"}
+    
+    def __init__(self):
+        """ Display initializer.
+            Initialize self.glyph_sprites and clear the screen.
+        """
+        self._init_font()
+        self.clear_screen()
+    
+    def _init_font(self):
+        """ Implements init of glyph_sprites. """
+        self.glyph_sprites = list()
+        for glyph in self.GLYPHS:
+            sprite = Sprite(size=5)
+            for i, s in enumerate(self.FONT[glyph]):
+                byte = int("0x{}0".format(s), 16)
+                sprite.save(byte, i)
+            self.glyph_sprites.append(sprite)
+    
+    def clear_screen(self):
+        """ Clear the screen. Set all pixels to off (False). """
+        self._pixels = list()
+        for y in range(self.HEIGHT):
+            self._pixels.append(BitArray(self.WIDTH))
+    
+    def load_bytes(self, x, y, size):
+        """ Load some bytes from the display. """
+        bytes_ = list()
+        for i in range(size):
+            byte = int(self._pixels[y + i][x:x+8].bin, 2)
+            bytes_.append(byte)
+        return bytes_
+    
+    def save_bytes(self, x, y, bytes_):
+        """ Save some bytes to the display. """
+        for i, byte in enumerate(bytes_):
+            d_line = self._pixels[y+i]
+            d_line[x:x+8] = byte
+    
+    @staticmethod
+    def _check_collision(d_byte, x_byte):
+        """ Check a display byte against a xor'd byte.
+            Return true if collision, or False if not.
+        """
+        d_ba = BitArray(hex(d_byte))
+        x_ba = BitArray(hex(x_byte))
+        for i, bit in enumerate(d_ba):
+            if bit and not x_ba[i]:
+                return True
+        return False
+    
+    def draw_sprite(self, x, y, sprite):
+        """ Draw an arbitrary Sprite to an arbitrary coordinate
+            on the display.
+            Returns 1 if collision, or 0 if not.
+        """
+        collision = 0
+        size = sprite.size()
+        d_bytes = self.load_bytes(x, y, size)
+        xor_bytes = list()
+        for i in range(size):
+            d_byte = d_bytes[i]
+            s_byte = sprite.load(i)
+            xor = d_byte ^ s_byte
+            if self._check_collision(d_byte, xor):
+                collision = 1
+            xor_bytes.append(xor)
+        self.save_bytes(x, y, xor_bytes)
+        return collision
 
 
