@@ -37,9 +37,18 @@ def test_draw_sprite():
 
 def test_draw_glyph():
     display.clear_screen()
-    glyph = display.glyph_sprites[3]
+    glyph = display.glyph_sprites[0x3]
     assert display.draw_sprite(23, 4, glyph) == 0
     bytes_ = display.load_bytes(23, 4, 5)
     assert bytes_[3] == 0b00010000
+
+def test_x_error():
+    with pytest.raises(ValueError):
+        glyph = display.glyph_sprites[0xf]
+        display.draw_sprite(60, 0, glyph)
+
+def test_y_error():
+    with pytest.raises(ValueError):
+        display.load_bytes(0, 30, 5)
 
 
