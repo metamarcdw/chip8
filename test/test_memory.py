@@ -14,6 +14,7 @@ def test_memory_class():
 def test_save_method():
     mem.save(0xFF, 0x200)
     assert mem._bytes[0x200] == 0xFF
+    mem.save(0xFF, 0x001)
 
 def test_save_valueerror():
     with pytest.raises(ValueError):

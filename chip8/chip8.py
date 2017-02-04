@@ -55,11 +55,11 @@ class Memory:
         """
         self._bytes = [0x00 for x in range(size)]
 
-    def _is_byte(self, byte, length=4):
+    def _is_byte(self, byte, maximum=0xFF):
         """ Returns true if byte is int class,
-            and has a hex string <= length.
+            and has a value <= maximum.
         """
-        return isinstance(byte, int) and len(hex(byte)) <= length
+        return isinstance(byte, int) and byte <= maximum
 
     def save(self, byte, address):
         """ Saves a byte at an address in memory.
@@ -68,7 +68,7 @@ class Memory:
         if not self._is_byte(byte):
             raise ValueError("'byte' was not a byte.")
             # Address must not be over 5 characters (4k in hex).
-        if not self._is_byte(address, length=5):
+        if not self._is_byte(address, maximum=0xFFF):
             raise IndexError("'address' was not formed correctly.")
 
         self._bytes[address] = byte
@@ -78,7 +78,7 @@ class Memory:
             Raises: IndexError.
         """
             # Address must not be over 5 characters (4k in hex).
-        if not self._is_byte(address, length=5):
+        if not self._is_byte(address, maximum=0xFFF):
             raise IndexError("'address' was not formed correctly.")
         return self._bytes[address]
 
@@ -141,6 +141,6 @@ class Keyboard:
 
 class Display:
     """ """
-    pass
+    FONT = {}
 
 
