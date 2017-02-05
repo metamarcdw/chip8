@@ -89,3 +89,7 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+# CHIP-8 project settings
+*.swp
+roms/
