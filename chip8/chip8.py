@@ -192,18 +192,20 @@ class Display:
         for y in range(self.HEIGHT):
             self._pixels.append(BitArray(self.WIDTH))
     
-    def load_bytes(self, x, y, size):
-        """ Load some bytes from the display.
-            Raises ValueError if loading from outside of display.
-        """
-        xerr = False; yerr = False
-        if x < 0 or x + 8 > self.WIDTH:
+    def _check_boundary(self, x, y, sprite_width, sprite_height):
+        """ Raises ValueError if accessing outside of display."""
+        xerr = False
+        if x < 0 or x + sprite_width > self.WIDTH:
             xerr = True
-        if y < 0 or y + size > self.HEIGHT:
+        yerr = False
+        if y < 0 or y + sprite_height > self.HEIGHT:
             yerr = True
         if xerr or yerr:
-            raise ValueError("Loading from outside of display.")
+            raise ValueError("Accessing outside of display.")
 
+    def load_bytes(self, x, y, size):
+        """ Load some bytes from the display. """
+        self._check_boundary(x, y, 8, size)
         bytes_ = list()
         for i in range(size):
             byte = int(self._pixels[y + i][x:x+8].bin, 2)
@@ -214,14 +216,7 @@ class Display:
         """ Save some bytes to the display.
             Raises ValueError if saving outside of display.
         """
-        xerr = False; yerr = False
-        if x < 0 or x + 8 > self.WIDTH:
-            xerr = True
-        if y < 0 or y + len(bytes_) > self.HEIGHT:
-            yerr = True
-        if xerr or yerr:
-            raise ValueError("Saving to outside of display.")
-
+        self._check_boundary(x, y, 8, len(bytes_))
         for i, byte in enumerate(bytes_):
             d_line = self._pixels[y+i]
             d_line[x:x+8] = byte
