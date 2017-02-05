@@ -1,6 +1,9 @@
-from bitstring import BitArray
-
+import os
+import sys
+import time
 import pdb  #<-- REMOVE ME
+
+from bitstring import BitArray
 
 
 class StackOverflowError(Exception):
@@ -159,7 +162,9 @@ class Keyboard:
 
 
 class Display:
-    """ Wraps a list of BitArrays, 64X32 bits. """
+    """ Display object. Monochrome.
+        Wraps a list of BitArrays, 64X32 bits.
+    """
     WIDTH = 64
     HEIGHT = 32
     GLYPHS = "0123456789ABCDEF"
@@ -168,14 +173,14 @@ class Display:
         "4": "99F11", "5": "F8F1F", "6": "F8F9F", "7": "F1244",
         "8": "F9F9F", "9": "F9F1F", "A": "F9F99", "B": "E9E9E",
         "C": "F888F", "D": "E999E", "E": "F8F8F", "F": "F8F88"}
-    
+
     def __init__(self):
         """ Display initializer.
             Initialize self.glyph_sprites and clear the screen.
         """
         self._init_font()
         self.clear_screen()
-    
+
     def _init_font(self):
         """ Implements init of glyph_sprites. """
         self.glyph_sprites = list()
@@ -185,13 +190,13 @@ class Display:
                 byte = int("0x{}0".format(s), 16)
                 sprite.save(byte, i)
             self.glyph_sprites.append(sprite)
-    
+
     def clear_screen(self):
         """ Clear the screen. Set all pixels to off (False). """
         self._pixels = list()
         for y in range(self.HEIGHT):
             self._pixels.append(BitArray(self.WIDTH))
-    
+
     def _check_boundary(self, x, y, sprite_width, sprite_height):
         """ Raises ValueError if accessing outside of display."""
         xerr = False
@@ -211,7 +216,7 @@ class Display:
             byte = int(self._pixels[y + i][x:x+8].bin, 2)
             bytes_.append(byte)
         return bytes_
-    
+
     def save_bytes(self, x, y, bytes_):
         """ Save some bytes to the display.
             Raises ValueError if saving outside of display.
@@ -220,7 +225,7 @@ class Display:
         for i, byte in enumerate(bytes_):
             d_line = self._pixels[y+i]
             d_line[x:x+8] = byte
-    
+
     @staticmethod
     def _check_collision(d_byte, x_byte):
         """ Check a display byte against a xor'd byte.
@@ -232,7 +237,7 @@ class Display:
             if bit and not x_ba[i]:
                 return True
         return False
-    
+
     def draw_sprite(self, x, y, sprite):
         """ Draw an arbitrary Sprite to an arbitrary coordinate
             on the display.
@@ -251,5 +256,107 @@ class Display:
             xor_bytes.append(xor)
         self.save_bytes(x, y, xor_bytes)
         return collision
+
+
+class Chip8:
+    """ CHIP-8 object. Contains all components.
+        Implements actual instruction set
+        and emulation functionality.
+    """
+
+    def __init__(self, prog_path):
+        """ CHIP-8 Initializer.
+            Initialize all components and load program.
+        """
+        self.pc = 0x200
+        self.i = 0x0000
+        self.dt = 0x00
+        self.st = 0x00
+
+        self.v = Registers()
+        self.mem = Memory()
+        self.call_stack = Stack()
+
+        self.keyboard = Keyboard()
+        self.display = Display()
+
+        self.load_font()
+        self.load_program(prog_path)
+
+    def load_font(self):
+        """ Loads the font from self.display.glyph_sprites
+            Into memory.
+        """
+        for i, glyph in enumerate(self.display.glyph_sprites):
+            size = glyph.size()
+            for j in range(size):
+                byte = glyph.load(j)
+                self.mem.save(byte, (i * size) + j)
+
+    def load_program(self, prog_path):
+        """ Loads the given program file into memory. """
+        addr = self.pc
+        with open(prog_path, "rb") as prog:
+            byte = prog.read(1)
+            while byte:
+                byte = int.from_bytes(byte, byteorder="big")
+                self.mem.save(byte, addr)
+                addr += 1
+                byte = prog.read(1)
+
+    def increment_pc(self):
+        """ Increment the program counter. """
+        self.pc += 2
+        if self.pc > 0xfff:
+            sys.exit(0)
+
+    def emulate_cycle(self):
+        """ Emulate one processor cycle. """
+        opcode = self.fetch()
+        print(opcode)
+        # self.execute(int(opcode,16))
+        self.decrement_timers()
+
+    def fetch(self):
+        """ Fetch an opcode from program memory. """
+        b1 = self.mem.load(self.pc)
+        b2 = self.mem.load(self.pc + 1)
+        opcode = (BitArray(hex(b1)) + BitArray(hex(b2))).hex.zfill(4)
+        self.increment_pc()
+        return opcode
+
+    def execute(self, bytes_):
+        """ 'Decode' and execute an opcode! """
+        pass
+
+    def decrement_timers(self):
+        """ Decrement the timers every cycle. """
+        if self.dt > 0:
+            self.dt -= 1
+        if self.st > 0:
+            self.st -= 1
+            # TODO: Play sound
+            print("BEEP!")
+
+
+    def run(self):
+        """ Run processor cycles at 60Hz. """
+        FREQ = 1 / 60
+        starttime=time.time()
+        while True:
+            self.emulate_cycle()
+            time.sleep(FREQ - ((time.time() - starttime) % FREQ))
+
+
+def main():
+    PROG = "MERLIN"
+    basepath = os.path.dirname(__file__)
+    progpath = os.path.abspath(
+        os.path.join(basepath, "..", "roms", PROG))
+    vm = Chip8(progpath)
+    vm.run()
+
+if __name__ == "__main__":
+    main()
 
 
