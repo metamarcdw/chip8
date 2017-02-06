@@ -312,9 +312,9 @@ class Chip8:
 
     def emulate_cycle(self):
         """ Emulate one processor cycle. """
-        opcode = self.fetch()
-        print(opcode)
-        # self.execute(int(opcode,16))
+        opcode = int(self.fetch(), 16)
+        instr = self.decode(opcode)
+        self.execute(instr)
         self.decrement_timers()
 
     def fetch(self):
@@ -323,11 +323,136 @@ class Chip8:
         b2 = self.mem.load(self.pc + 1)
         opcode = (BitArray(hex(b1)) + BitArray(hex(b2))).hex.zfill(4)
         self.increment_pc()
+        print(opcode)
         return opcode
 
-    def execute(self, bytes_):
-        """ 'Decode' and execute an opcode! """
-        pass
+    def decode(self, opcode):
+        """ Decode opcode and return instruction list. """
+        instr = [(opcode & 0xf000) >> 12,
+                (opcode & 0x0f00) >> 8,
+                (opcode & 0x00f0) >> 4,
+                opcode & 0x000f,
+                opcode & 0x00ff,
+                opcode & 0x0fff]
+        return instr
+
+    def execute(self, instr):
+        """ Execute a decoded instruction! """
+        
+        oper, x, y, n, kk, nnn = instr
+
+        if oper == 0x0:
+            if y == 0xe:
+                if n == 0x0:
+                    # CLS
+                    pass
+                elif n == 0xe:
+                    # RET
+                    pass
+            else:
+                # SYS
+                pass
+        elif oper == 0x1:
+            # JP addr
+            pass
+        elif oper == 0x2:
+            # CALL addr
+            pass
+        elif oper == 0x3:
+            # SE Vx, byte
+            pass
+        elif oper == 0x4:
+            # SNE Vx, byte
+            pass
+        elif oper == 0x5:
+            # SE Vx, Vy
+            pass
+        elif oper == 0x6:
+            # LD Vx, byte
+            pass
+        elif oper == 0x7:
+            # ADD Vx, byte
+            pass
+        elif oper == 0x8:
+            if n == 0x0:
+                # LD Vx, Vy
+                pass
+            elif n == 0x1:
+                # OR Vx, Vy
+                pass
+            elif n == 0x2:
+                # AND Vx, Vy
+                pass
+            elif n == 0x3:
+                # XOR Vx, Vy
+                pass
+            elif n == 0x4:
+                # ADD Vx, Vy
+                pass
+            elif n == 0x5:
+                # SUB Vx, Vy
+                pass
+            elif n == 0x6:
+                # SHR Vx {, Vy}
+                pass
+            elif n == 0x7:
+                # SUBN Vx, Vy
+                pass
+            elif n == 0xe:
+                # SHL Vx {, Vy}
+                pass
+        elif oper == 0x9:
+            # SNE Vx, Vy
+            pass
+        elif oper == 0xa:
+            # LD I, addr
+            pass
+        elif oper == 0xb:
+            # JP V0, addr
+            pass
+        elif oper == 0xc:
+            # RND Vx, byte
+            pass
+        elif oper == 0xd:
+            # DRW Vx, Vy, size
+            pass
+        elif oper == 0xe:
+            if y == 0x9 and n == 0xe:
+                # SKP Vx
+                pass
+            elif y == 0xa and n == 0x1:
+                # SKNP Vx
+                pass
+        elif oper == 0xf:
+            if y == 0x0:
+                if n == 0x7:
+                    # LD Vx, DT
+                    pass
+                elif n == 0xa:
+                    # LD Vx, K
+                    pass
+            elif y == 0x1:
+                if n == 0x5:
+                    # LD DT, Vx
+                    pass
+                elif n == 0x8:
+                    # LD ST, Vx
+                    pass
+                elif n == 0xe:
+                    # ADD I, Vx
+                    pass
+            elif y == 0x2 and n == 0x9:
+                # LD F, Vx
+                pass
+            elif y == 0x3 and n == 0x3:
+                # LD B, Vx
+                pass
+            elif y == 0x5 and n == 0x5:
+                # LD [I], Vx
+                pass
+            elif y == 0x6 and n == 0x5:
+                # LD Vx, [I]
+                pass
 
     def decrement_timers(self):
         """ Decrement the timers every cycle. """
