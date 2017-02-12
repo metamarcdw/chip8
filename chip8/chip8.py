@@ -257,6 +257,13 @@ class Display:
         self.save_bytes(x, y, xor_bytes)
         return collision
 
+    def get_data(self):
+        """ Return all display data as a 'bytes' object. """
+        data = BitArray()
+        for line in self._pixels:
+            data += line
+        return data.bytes
+
 
 class Chip8:
     """ CHIP-8 object. Contains all components.
@@ -279,6 +286,7 @@ class Chip8:
 
         self.keyboard = Keyboard()
         self.display = Display()
+        self.buzzing = False
 
         self.load_font()
         self.load_program(prog_path)
@@ -308,6 +316,7 @@ class Chip8:
         """ Increment the program counter. """
         self.pc += 2
         if self.pc > 0xfff:
+            # self.pc = 0x200
             sys.exit(0)
 
     def emulate_cycle(self):
@@ -321,9 +330,8 @@ class Chip8:
         """ Fetch an opcode from program memory. """
         b1 = self.mem.load(self.pc)
         b2 = self.mem.load(self.pc + 1)
-        opcode = (BitArray(hex(b1)) + BitArray(hex(b2))).hex.zfill(4)
+        opcode = (BitArray(hex(b1)) + BitArray(hex(b2))).hex
         self.increment_pc()
-        print(opcode)
         return opcode
 
     def decode(self, opcode):
@@ -338,7 +346,6 @@ class Chip8:
 
     def execute(self, instr):
         """ Execute a decoded instruction! """
-        
         oper, x, y, n, kk, nnn = instr
 
         if oper == 0x0:
@@ -460,8 +467,10 @@ class Chip8:
             self.dt -= 1
         if self.st > 0:
             self.st -= 1
-            # TODO: Play sound
-            print("BEEP!")
+            self.buzzing = True
+            print("BUZZ!")
+        else:
+            self.buzzing = False
 
 
     def run(self):
