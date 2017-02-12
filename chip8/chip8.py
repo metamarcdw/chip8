@@ -316,8 +316,8 @@ class Chip8:
         """ Increment the program counter. """
         self.pc += 2
         if self.pc > 0xfff:
-            # self.pc = 0x200
-            sys.exit(0)
+            self.pc = 0x200
+            # sys.exit(0)
 
     def emulate_cycle(self):
         """ Emulate one processor cycle. """
