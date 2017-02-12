@@ -36,6 +36,23 @@ class Chip8Window(QtGui.QMainWindow,
         self.screen_timer.start((1 / FPS) * 1000)
         self.old_pdata = None
 
+        self.one_button.setup(self.vm.keyboard, "1")
+        self.two_button.setup(self.vm.keyboard, "2")
+        self.three_button.setup(self.vm.keyboard, "3")
+        self.four_button.setup(self.vm.keyboard, "4")
+        self.five_button.setup(self.vm.keyboard, "5")
+        self.six_button.setup(self.vm.keyboard, "6")
+        self.seven_button.setup(self.vm.keyboard, "7")
+        self.eight_button.setup(self.vm.keyboard, "8")
+        self.nine_button.setup(self.vm.keyboard, "9")
+        self.zero_button.setup(self.vm.keyboard, "0")
+        self.a_button.setup(self.vm.keyboard, "A")
+        self.b_button.setup(self.vm.keyboard, "B")
+        self.c_button.setup(self.vm.keyboard, "C")
+        self.d_button.setup(self.vm.keyboard, "D")
+        self.e_button.setup(self.vm.keyboard, "E")
+        self.f_button.setup(self.vm.keyboard, "F")
+
     def updateScreen(self):
         pixeldata = self.vm.display.get_data()
         if pixeldata == self.old_pdata:
@@ -58,77 +75,112 @@ class Chip8Window(QtGui.QMainWindow,
             return
         self.grabKeyboard()
         key = event.key()
+        keyboard = self.vm.keyboard
+
         if key == QtCore.Qt.Key_1:
-            self.vm.keyboard.press("1")
+            keyboard.press("1")
+            self.one_button.setFlat(True)
         elif key == QtCore.Qt.Key_2:
-            self.vm.keyboard.press("2")
+            keyboard.press("2")
+            self.two_button.setFlat(True)
         elif key == QtCore.Qt.Key_3:
-            self.vm.keyboard.press("3")
+            keyboard.press("3")
+            self.three_button.setFlat(True)
         elif key == QtCore.Qt.Key_4:
-            self.vm.keyboard.press("4")
+            keyboard.press("4")
+            self.four_button.setFlat(True)
         elif key == QtCore.Qt.Key_5:
-            self.vm.keyboard.press("5")
+            keyboard.press("5")
+            self.five_button.setFlat(True)
         elif key == QtCore.Qt.Key_6:
-            self.vm.keyboard.press("6")
+            keyboard.press("6")
+            self.six_button.setFlat(True)
         elif key == QtCore.Qt.Key_7:
-            self.vm.keyboard.press("7")
+            keyboard.press("7")
+            self.seven_button.setFlat(True)
         elif key == QtCore.Qt.Key_8:
-            self.vm.keyboard.press("8")
+            keyboard.press("8")
+            self.eight_button.setFlat(True)
         elif key == QtCore.Qt.Key_9:
-            self.vm.keyboard.press("9")
+            keyboard.press("9")
+            self.nine_button.setFlat(True)
         elif key == QtCore.Qt.Key_0:
-            self.vm.keyboard.press("0")
+            keyboard.press("0")
+            self.zero_button.setFlat(True)
         elif key == QtCore.Qt.Key_A:
-            self.vm.keyboard.press("A")
+            keyboard.press("A")
+            self.a_button.setFlat(True)
         elif key == QtCore.Qt.Key_B:
-            self.vm.keyboard.press("B")
+            keyboard.press("B")
+            self.b_button.setFlat(True)
         elif key == QtCore.Qt.Key_C:
-            self.vm.keyboard.press("C")
+            keyboard.press("C")
+            self.c_button.setFlat(True)
         elif key == QtCore.Qt.Key_D:
-            self.vm.keyboard.press("D")
+            keyboard.press("D")
+            self.d_button.setFlat(True)
         elif key == QtCore.Qt.Key_E:
-            self.vm.keyboard.press("E")
+            keyboard.press("E")
+            self.e_button.setFlat(True)
         elif key == QtCore.Qt.Key_F:
-            self.vm.keyboard.press("F")
-        event.accept()
+            keyboard.press("F")
+            self.f_button.setFlat(True)
 
     def keyReleaseEvent(self, event):
         if event.isAutoRepeat():
             event.ignore()
             return
         key = event.key()
+        keyboard = self.vm.keyboard
+
         if key == QtCore.Qt.Key_1:
-            self.vm.keyboard.unpress("1")
+            keyboard.unpress("1")
+            self.one_button.setFlat(False)
         elif key == QtCore.Qt.Key_2:
-            self.vm.keyboard.unpress("2")
+            keyboard.unpress("2")
+            self.two_button.setFlat(False)
         elif key == QtCore.Qt.Key_3:
-            self.vm.keyboard.unpress("3")
+            keyboard.unpress("3")
+            self.three_button.setFlat(False)
         elif key == QtCore.Qt.Key_4:
-            self.vm.keyboard.unpress("4")
+            keyboard.unpress("4")
+            self.four_button.setFlat(False)
         elif key == QtCore.Qt.Key_5:
-            self.vm.keyboard.unpress("5")
+            keyboard.unpress("5")
+            self.five_button.setFlat(False)
         elif key == QtCore.Qt.Key_6:
-            self.vm.keyboard.unpress("6")
+            keyboard.unpress("6")
+            self.six_button.setFlat(False)
         elif key == QtCore.Qt.Key_7:
-            self.vm.keyboard.unpress("7")
+            keyboard.unpress("7")
+            self.seven_button.setFlat(False)
         elif key == QtCore.Qt.Key_8:
-            self.vm.keyboard.unpress("8")
+            keyboard.unpress("8")
+            self.eight_button.setFlat(False)
         elif key == QtCore.Qt.Key_9:
-            self.vm.keyboard.unpress("9")
+            keyboard.unpress("9")
+            self.nine_button.setFlat(False)
         elif key == QtCore.Qt.Key_0:
-            self.vm.keyboard.unpress("0")
+            keyboard.unpress("0")
+            self.zero_button.setFlat(False)
         elif key == QtCore.Qt.Key_A:
-            self.vm.keyboard.unpress("A")
+            keyboard.unpress("A")
+            self.a_button.setFlat(False)
         elif key == QtCore.Qt.Key_B:
-            self.vm.keyboard.unpress("B")
+            keyboard.unpress("B")
+            self.b_button.setFlat(False)
         elif key == QtCore.Qt.Key_C:
-            self.vm.keyboard.unpress("C")
+            keyboard.unpress("C")
+            self.c_button.setFlat(False)
         elif key == QtCore.Qt.Key_D:
-            self.vm.keyboard.unpress("D")
+            keyboard.unpress("D")
+            self.d_button.setFlat(False)
         elif key == QtCore.Qt.Key_E:
-            self.vm.keyboard.unpress("E")
+            keyboard.unpress("E")
+            self.e_button.setFlat(False)
         elif key == QtCore.Qt.Key_F:
-            self.vm.keyboard.unpress("F")
+            keyboard.unpress("F")
+            self.f_button.setFlat(False)
         self.releaseKeyboard()
 
 
