@@ -161,6 +161,16 @@ class Keyboard:
 
         return self._keys[key]
 
+    def get_pressed(self):
+        """ Returns a list of strings representing all keys
+            that are currently pressed.
+        """
+        list_ = list()
+        for key, value in self._keys.items():
+            if value:
+                list_.append(key)
+        return list_
+
 
 class Display:
     """ Display object. Monochrome.
