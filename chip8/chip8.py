@@ -1,6 +1,7 @@
 import os
 import sys
 import time
+import random
 import pdb  #<-- REMOVE ME
 
 from bitstring import BitArray
@@ -352,89 +353,145 @@ class Chip8:
             if y == 0xe:
                 if n == 0x0:
                     # CLS
-                    pass
+                    self.display.clear_screen()
                 elif n == 0xe:
                     # RET
-                    pass
+                    self.pc = self.call_stack.pop()
             else:
                 # SYS
+                """ 'This instruction is only used on the old
+                    computers on which Chip-8 was originally
+                    implemented. It is ignored by modern interpreters.'
+                """
                 pass
         elif oper == 0x1:
             # JP addr
-            pass
+            self.pc = nnn
         elif oper == 0x2:
             # CALL addr
-            pass
+            self.call_stack.push(self.pc)
+            self.pc = nnn
         elif oper == 0x3:
             # SE Vx, byte
-            pass
+            if self.v.load(x) == kk:
+                self.increment_pc()
         elif oper == 0x4:
             # SNE Vx, byte
-            pass
+            if self.v.load(x) != kk:
+                self.increment_pc()
         elif oper == 0x5:
             # SE Vx, Vy
-            pass
+            if self.v.load(x) == self.v.load(y):
+                self.increment_pc()
         elif oper == 0x6:
             # LD Vx, byte
-            pass
+            self.v.save(kk, x)
         elif oper == 0x7:
             # ADD Vx, byte
-            pass
+            self.v.save(self.v.load(x) + kk, x)
         elif oper == 0x8:
             if n == 0x0:
                 # LD Vx, Vy
-                pass
+                self.v.save(self.v.load(y), x)
             elif n == 0x1:
                 # OR Vx, Vy
-                pass
+                result = self.v.load(x) | self.v.load(y)
+                self.v.save(result, x)
             elif n == 0x2:
                 # AND Vx, Vy
-                pass
+                result = self.v.load(x) & self.v.load(y)
+                self.v.save(result, x)
             elif n == 0x3:
                 # XOR Vx, Vy
-                pass
+                result = self.v.load(x) ^ self.v.load(y)
+                self.v.save(result, x)
             elif n == 0x4:
                 # ADD Vx, Vy
-                pass
+                carry = 0
+                result = self.v.load(x) + self.v.load(y)
+                if result > 0xffff:
+                    result = int(BitArray(result)[-8:].hex, 16)
+                    carry = 1
+                self.v.save(result, x)
+                self.v.save(carry, 0xf)
             elif n == 0x5:
                 # SUB Vx, Vy
-                pass
+                not_borrow = 0
+                vx, vy = (self.v.load(x), self.v.load(y))
+                if vx > vy:
+                    not_borrow = 1
+                result = vx - vy
+                self.v.save(result, x)
+                self.v.save(not_borrow, 0xf)
             elif n == 0x6:
                 # SHR Vx {, Vy}
-                pass
+                lsb = 0
+                vx = self.v.load(x)
+                if BitArray(vx)[-1]:
+                    lsb = 1
+                result = vx / 2
+                self.v.save(result, x)
+                self.v.save(lsb, 0xf)
             elif n == 0x7:
                 # SUBN Vx, Vy
-                pass
+                not_borrow = 0
+                vx, vy = (self.v.load(x), self.v.load(y))
+                if vx > vy:
+                    not_borrow = 1
+                result = vy - vx
+                self.v.save(result, x)
+                self.v.save(not_borrow, 0xf)
             elif n == 0xe:
                 # SHL Vx {, Vy}
-                pass
+                msb = 0
+                vx = self.v.load(x)
+                if BitArray(vx)[0]:
+                    msb = 1
+                result = vx * 2
+                self.v.save(result, x)
+                self.v.save(msb, 0xf)
         elif oper == 0x9:
             # SNE Vx, Vy
-            pass
+            if self.v.load(x) != self.v.load(y):
+                self.increment_pc()
         elif oper == 0xa:
             # LD I, addr
-            pass
+            self.i = nnn
         elif oper == 0xb:
             # JP V0, addr
-            pass
+            self.pc = nnn + self.v.load(0)
         elif oper == 0xc:
             # RND Vx, byte
-            pass
+            rnd = random.randint(0, 255)
+            result = rnd & kk
+            self.v.save(result, x)
         elif oper == 0xd:
             # DRW Vx, Vy, size
-            pass
+            sprite = Sprite(n)
+            for i in range(n):
+                byte = self.mem.load(self.i + i)
+                sprite.save(byte, i)
+            vx, vy = (self.v.load(x), self.v.load(y))
+            collision = self.display.draw_sprite(vx, vy, sprite)
+            self.v.save(collision, 0xf)
         elif oper == 0xe:
             if y == 0x9 and n == 0xe:
                 # SKP Vx
-                pass
+                keys = self.keyboard.KEYS
+                vx = self.v.load(x)
+                if self.keyboard.is_pressed(keys[vx]):
+                    self.increment_pc()
             elif y == 0xa and n == 0x1:
                 # SKNP Vx
-                pass
+                keys = self.keyboard.KEYS
+                vx = self.v.load(x)
+                if not self.keyboard.is_pressed(keys[vx]):
+                    self.increment_pc()
         elif oper == 0xf:
             if y == 0x0:
                 if n == 0x7:
                     # LD Vx, DT
-                    pass
+                    self.v.save(self.dt, x)
                 elif n == 0xa:
                     # LD Vx, K
                     pass
