@@ -59,4 +59,12 @@ def test_is_pressed_keyboarderror():
     with pytest.raises(chip8.KeyboardError):
         keyboard.is_pressed("Z")
 
+def test_get_pressed_method():
+    """ Tests that the correct list is returned by
+        get_pressed().
+    """
+    keyboard.press("1")
+    keyboard.press("A")
+    assert keyboard.get_pressed() == ["1", "A", "B"]
+
 
