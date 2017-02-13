@@ -364,6 +364,7 @@ class Chip8:
     def execute(self, instr):
         """ Execute a decoded instruction! """
         oper, x, y, n, kk, nnn = instr
+        vx, vy = (self.v.load(x), self.v.load(y))
 
         if oper == 0x0:
             if y == 0xe:
@@ -389,45 +390,45 @@ class Chip8:
             self.pc = nnn
         elif oper == 0x3:
             # SE Vx, byte
-            if self.v.load(x) == kk:
+            if vx == kk:
                 self.increment_pc()
         elif oper == 0x4:
             # SNE Vx, byte
-            if self.v.load(x) != kk:
+            if vx != kk:
                 self.increment_pc()
         elif oper == 0x5:
             # SE Vx, Vy
-            if self.v.load(x) == self.v.load(y):
+            if vx == vy:
                 self.increment_pc()
         elif oper == 0x6:
             # LD Vx, byte
             self.v.save(kk, x)
         elif oper == 0x7:
             # ADD Vx, byte
-            result = self.v.load(x) + kk
+            result = vx + kk
             if result > 0xff:
                 result = int(BitArray(result)[-8:].hex, 16)
             self.v.save(result, x)
         elif oper == 0x8:
             if n == 0x0:
                 # LD Vx, Vy
-                self.v.save(self.v.load(y), x)
+                self.v.save(vy, x)
             elif n == 0x1:
                 # OR Vx, Vy
-                result = self.v.load(x) | self.v.load(y)
+                result = vx | vy
                 self.v.save(result, x)
             elif n == 0x2:
                 # AND Vx, Vy
-                result = self.v.load(x) & self.v.load(y)
+                result = vx & vy
                 self.v.save(result, x)
             elif n == 0x3:
                 # XOR Vx, Vy
-                result = self.v.load(x) ^ self.v.load(y)
+                result = vx ^ vy
                 self.v.save(result, x)
             elif n == 0x4:
                 # ADD Vx, Vy
                 carry = 0
-                result = self.v.load(x) + self.v.load(y)
+                result = vx + vy
                 if result > 0xff:
                     result = int(BitArray(result)[-8:].hex, 16)
                     carry = 1
@@ -436,7 +437,6 @@ class Chip8:
             elif n == 0x5:
                 # SUB Vx, Vy
                 not_borrow = 0
-                vx, vy = (self.v.load(x), self.v.load(y))
                 if vx > vy:
                     not_borrow = 1
                 result = vx - vy
@@ -445,7 +445,6 @@ class Chip8:
             elif n == 0x6:
                 # SHR Vx {, Vy}
                 lsb = 0
-                vx = self.v.load(x)
                 if BitArray(vx)[-1]:
                     lsb = 1
                 result = vx / 2
@@ -454,7 +453,6 @@ class Chip8:
             elif n == 0x7:
                 # SUBN Vx, Vy
                 not_borrow = 0
-                vx, vy = (self.v.load(x), self.v.load(y))
                 if vx > vy:
                     not_borrow = 1
                 result = vy - vx
@@ -463,7 +461,6 @@ class Chip8:
             elif n == 0xe:
                 # SHL Vx {, Vy}
                 msb = 0
-                vx = self.v.load(x)
                 if BitArray(vx)[0]:
                     msb = 1
                 result = vx * 2
@@ -471,7 +468,7 @@ class Chip8:
                 self.v.save(msb, 0xf)
         elif oper == 0x9:
             # SNE Vx, Vy
-            if self.v.load(x) != self.v.load(y):
+            if vx != vy:
                 self.increment_pc()
         elif oper == 0xa:
             # LD I, addr
@@ -490,20 +487,17 @@ class Chip8:
             for i in range(n):
                 byte = self.mem.load(self.i + i)
                 sprite.save(byte, i)
-            vx, vy = (self.v.load(x), self.v.load(y))
             collision = self.display.draw_sprite(vx, vy, sprite)
             self.v.save(collision, 0xf)
         elif oper == 0xe:
             if y == 0x9 and n == 0xe:
                 # SKP Vx
                 keys = self.keyboard.KEYS
-                vx = self.v.load(x)
                 if self.keyboard.is_pressed(keys[vx]):
                     self.increment_pc()
             elif y == 0xa and n == 0x1:
                 # SKNP Vx
                 keys = self.keyboard.KEYS
-                vx = self.v.load(x)
                 if not self.keyboard.is_pressed(keys[vx]):
                     self.increment_pc()
         elif oper == 0xf:
@@ -525,22 +519,21 @@ class Chip8:
             elif y == 0x1:
                 if n == 0x5:
                     # LD DT, Vx
-                    self.dt = self.v.load(x)
+                    self.dt = vx
                 elif n == 0x8:
                     # LD ST, Vx
-                    self.st = self.v.load(x)
+                    self.st = vx
                 elif n == 0xe:
                     # ADD I, Vx
-                    result = self.i + self.v.load(x)
+                    result = self.i + vx
                     self.i = result
             elif y == 0x2 and n == 0x9:
                 # LD F, Vx
                 font_size = self.display.glyph_sprites[0].size()
-                self.i = self.v.load(x) * font_size
+                self.i = vx * font_size
             elif y == 0x3 and n == 0x3:
                 # LD B, Vx
                 DIGITS = 3
-                vx = self.v.load(x)
                 str_ = str(vx).zfill(DIGITS)
                 for i in range(DIGITS):
                     self.mem.save(int(str_[i]), self.i + i)
@@ -551,7 +544,6 @@ class Chip8:
                     self.mem.save(byte, self.i + i)
             elif y == 0x6 and n == 0x5:
                 # LD Vx, [I]
-                vx = self.v.load(x)
                 for i in range(vx):
                     byte = self.mem.load(self.i + i)
                     self.v.save(byte, i)
