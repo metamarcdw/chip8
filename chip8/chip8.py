@@ -439,6 +439,8 @@ class Chip8:
                 not_borrow = 0
                 if vx > vy:
                     not_borrow = 1
+                else:
+                    vx += 0x100
                 result = vx - vy
                 self.v.save(result, x)
                 self.v.save(not_borrow, 0xf)
@@ -447,14 +449,16 @@ class Chip8:
                 lsb = 0
                 if BitArray(vx)[-1]:
                     lsb = 1
-                result = vx / 2
+                result = vx >> 1
                 self.v.save(result, x)
                 self.v.save(lsb, 0xf)
             elif n == 0x7:
                 # SUBN Vx, Vy
                 not_borrow = 0
-                if vx > vy:
+                if vy > vx:
                     not_borrow = 1
+                else:
+                    vy += 0x100
                 result = vy - vx
                 self.v.save(result, x)
                 self.v.save(not_borrow, 0xf)
@@ -463,7 +467,7 @@ class Chip8:
                 msb = 0
                 if BitArray(vx)[0]:
                     msb = 1
-                result = vx * 2
+                result = vx << 1
                 self.v.save(result, x)
                 self.v.save(msb, 0xf)
         elif oper == 0x9:
