@@ -275,6 +275,12 @@ class Display:
             data += line
         return data.bytes
 
+    def __str__(self):
+        list_ = list()
+        for line in self._pixels:
+            list_.append(line.bin)
+        return "{}\n".format("\n".join(list_))
+
 
 class Chip8:
     """ CHIP-8 object. Contains all components.
@@ -327,8 +333,8 @@ class Chip8:
         """ Increment the program counter. """
         self.pc += 2
         if self.pc > 0xfff:
-            self.pc = 0x200
-            # sys.exit(0)
+            # self.pc = 0x200
+            sys.exit(0)
 
     def emulate_cycle(self):
         """ Emulate one processor cycle. """
@@ -398,7 +404,10 @@ class Chip8:
             self.v.save(kk, x)
         elif oper == 0x7:
             # ADD Vx, byte
-            self.v.save(self.v.load(x) + kk, x)
+            result = self.v.load(x) + kk
+            if result > 0xff:
+                result = int(BitArray(result)[-8:].hex, 16)
+            self.v.save(result, x)
         elif oper == 0x8:
             if n == 0x0:
                 # LD Vx, Vy
@@ -419,7 +428,7 @@ class Chip8:
                 # ADD Vx, Vy
                 carry = 0
                 result = self.v.load(x) + self.v.load(y)
-                if result > 0xffff:
+                if result > 0xff:
                     result = int(BitArray(result)[-8:].hex, 16)
                     carry = 1
                 self.v.save(result, x)
@@ -504,29 +513,48 @@ class Chip8:
                     self.v.save(self.dt, x)
                 elif n == 0xa:
                     # LD Vx, K
-                    pass
+                    FREQ = 1 / 60
+                    starttime=time.time()
+                    while True:
+                        pressed = self.keybord.get_pressed()
+                        if pressed != []:
+                            self.v.save(pressed[0], x)
+                            break
+                        time.sleep(
+                            FREQ - ((time.time() - starttime) % FREQ))
             elif y == 0x1:
                 if n == 0x5:
                     # LD DT, Vx
-                    pass
+                    self.dt = self.v.load(x)
                 elif n == 0x8:
                     # LD ST, Vx
-                    pass
+                    self.st = self.v.load(x)
                 elif n == 0xe:
                     # ADD I, Vx
-                    pass
+                    result = self.i + self.v.load(x)
+                    self.i = result
             elif y == 0x2 and n == 0x9:
                 # LD F, Vx
-                pass
+                font_size = self.display.glyph_sprites[0].size()
+                self.i = self.v.load(x) * font_size
             elif y == 0x3 and n == 0x3:
                 # LD B, Vx
-                pass
+                DIGITS = 3
+                vx = self.v.load(x)
+                str_ = str(vx).zfill(DIGITS)
+                for i in range(DIGITS):
+                    self.mem.save(int(str_[i]), self.i + i)
             elif y == 0x5 and n == 0x5:
                 # LD [I], Vx
-                pass
+                for i in range(x):
+                    byte = self.v.load(i)
+                    self.mem.save(byte, self.i + i)
             elif y == 0x6 and n == 0x5:
                 # LD Vx, [I]
-                pass
+                vx = self.v.load(x)
+                for i in range(vx):
+                    byte = self.mem.load(self.i + i)
+                    self.v.save(byte, i)
 
     def decrement_timers(self):
         """ Decrement the timers every cycle. """

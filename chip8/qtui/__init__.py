@@ -56,6 +56,7 @@ class Chip8Window(QtGui.QMainWindow,
 
     def updateScreen(self):
         pixeldata = self.vm.display.get_data()
+        print(pixeldata)
         if pixeldata == self.old_pdata:
             new_bmp = QtGui.QBitmap.fromData(
                 self.qsize, pixeldata, format=QtGui.QImage.Format_Mono)
