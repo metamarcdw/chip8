@@ -407,7 +407,7 @@ class Chip8:
             # ADD Vx, byte
             result = vx + kk
             if result > 0xff:
-                result = int(BitArray(result)[-8:].hex, 16)
+                result = result % 0x100
             self.v.save(result, x)
         elif oper == 0x8:
             if n == 0x0:
@@ -430,7 +430,7 @@ class Chip8:
                 carry = 0
                 result = vx + vy
                 if result > 0xff:
-                    result = int(BitArray(result)[-8:].hex, 16)
+                    result = result % 0x100
                     carry = 1
                 self.v.save(result, x)
                 self.v.save(carry, 0xf)
@@ -544,7 +544,7 @@ class Chip8:
                     self.mem.save(byte, self.i + i)
             elif y == 0x6 and n == 0x5:
                 # LD Vx, [I]
-                for i in range(vx):
+                for i in range(x):
                     byte = self.mem.load(self.i + i)
                     self.v.save(byte, i)
 
