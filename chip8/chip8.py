@@ -291,7 +291,7 @@ class Chip8:
         and emulation functionality.
     """
 
-    def __init__(self, prog_path):
+    def __init__(self, prog_path=None):
         """ CHIP-8 Initializer.
             Initialize all components and load program.
         """
@@ -309,7 +309,8 @@ class Chip8:
         self.buzzing = False
 
         self.load_font()
-        self.load_program(prog_path)
+        if prog_path:
+            self.load_from_file(prog_path)
 
     def load_font(self):
         """ Loads the font from self.display.glyph_sprites
@@ -321,22 +322,29 @@ class Chip8:
                 byte = glyph.load(j)
                 self.mem.save(byte, (i * size) + j)
 
-    def load_program(self, prog_path):
+    def load_from_file(self, prog_path):
         """ Loads the given program file into memory. """
-        addr = self.pc
+        list_ = list()
         with open(prog_path, "rb") as prog:
             byte = prog.read(1)
             while byte:
                 byte = int.from_bytes(byte, byteorder="big")
-                self.mem.save(byte, addr)
-                addr += 1
+                list_.append(byte)
                 byte = prog.read(1)
+        self.load_program(list_) 
+
+    def load_program(self, list_):
+        """ Loads an integer list representing a chip8 program
+            into memory.
+        """
+        addr = 0x200
+        for i, byte in enumerate(list_):
+            self.mem.save(byte, addr + i)
 
     def increment_pc(self):
         """ Increment the program counter. """
         self.pc += 2
         if self.pc > 0xfff:
-            # self.pc = 0x200
             sys.exit(0)
 
     def emulate_cycle(self):
