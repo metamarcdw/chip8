@@ -7,6 +7,9 @@ import pdb  #<-- REMOVE ME
 from bitstring import BitArray
 
 
+class BadOpcodeError(Exception):
+    pass
+
 class StackOverflowError(Exception):
     pass
 
@@ -338,8 +341,10 @@ class Chip8:
 
     def emulate_cycle(self):
         """ Emulate one processor cycle. """
-        opcode = int(self.fetch(), 16)
-        instr = self.decode(opcode)
+        opcode = self.fetch()
+        print("EXECUTING OPCODE:{0} PC:{1} SP:{2} I:{3}".format(
+            opcode.zfill(4), self.pc, self.call_stack.size(), self.i))
+        instr = self.decode(int(opcode, 16))
         self.execute(instr)
         self.decrement_timers()
 
@@ -470,6 +475,8 @@ class Chip8:
                 result = vx << 1
                 self.v.save(result, x)
                 self.v.save(msb, 0xf)
+            else:
+                raise BadOpcodeError("Trying to execute bad opcode.")
         elif oper == 0x9:
             # SNE Vx, Vy
             if vx != vy:
@@ -504,6 +511,8 @@ class Chip8:
                 keys = self.keyboard.KEYS
                 if not self.keyboard.is_pressed(keys[vx]):
                     self.increment_pc()
+            else:
+                raise BadOpcodeError("Trying to execute bad opcode.")
         elif oper == 0xf:
             if y == 0x0:
                 if n == 0x7:
@@ -520,6 +529,8 @@ class Chip8:
                             break
                         time.sleep(
                             FREQ - ((time.time() - starttime) % FREQ))
+                else:
+                    raise BadOpcodeError("Trying to execute bad opcode.")
             elif y == 0x1:
                 if n == 0x5:
                     # LD DT, Vx
@@ -531,6 +542,8 @@ class Chip8:
                     # ADD I, Vx
                     result = self.i + vx
                     self.i = result
+                else:
+                    raise BadOpcodeError("Trying to execute bad opcode.")
             elif y == 0x2 and n == 0x9:
                 # LD F, Vx
                 font_size = self.display.glyph_sprites[0].size()
@@ -539,18 +552,20 @@ class Chip8:
                 # LD B, Vx
                 DIGITS = 3
                 str_ = str(vx).zfill(DIGITS)
-                for i in range(DIGITS):
-                    self.mem.save(int(str_[i]), self.i + i)
+                for i, c in enumerate(str_):
+                    self.mem.save(int(c), self.i + i)
             elif y == 0x5 and n == 0x5:
                 # LD [I], Vx
-                for i in range(x):
+                for i in range(x + 1):
                     byte = self.v.load(i)
                     self.mem.save(byte, self.i + i)
             elif y == 0x6 and n == 0x5:
                 # LD Vx, [I]
-                for i in range(x):
+                for i in range(x + 1):
                     byte = self.mem.load(self.i + i)
                     self.v.save(byte, i)
+            else:
+                raise BadOpcodeError("Trying to execute bad opcode.")
 
     def decrement_timers(self):
         """ Decrement the timers every cycle. """
