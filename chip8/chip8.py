@@ -360,22 +360,25 @@ class Chip8:
         val = self.v.load(index)
         print("V{0}: {1}".format(hex(index)[2:], val))
 
+    def debug(self):
+        str_ = input()
+        if str_ in ("Q", "q"):
+            sys.exit(0)
+        elif str_.startswith("v"):
+            reg = int(str_[1], 16)
+            self.print_register(reg)
+        elif str_ == "dump":
+            print(str(self.v))
+            print("Call Stack: {} <-top\n".format(
+                self.call_stack.list_()))
+
     def emulate_cycle(self):
         """ Emulate one processor cycle. """
         opcode = self.fetch()
         print("EXECUTING OPCODE:{0} PC:{1} SP:{2} I:{3}".format(
             opcode.zfill(4), self.pc - 2, self.call_stack.size(), self.i))
         if self.step_mode:
-            str_ = input()
-            if str_ in ("Q", "q"):
-                sys.exit(0)
-            elif str_.startswith("v"):
-                reg = int(str_[1], 16)
-                self.print_register(reg)
-            elif str_ == "dump":
-                print(str(self.v))
-                print("Call Stack: {} <-top\n".format(
-                    self.call_stack.list_()))
+            self.debug()
         instr = self.decode(int(opcode, 16))
         self.execute(instr)
         self.decrement_timers()
