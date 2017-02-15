@@ -533,7 +533,8 @@ class Chip8:
                     while True:
                         pressed = self.keybord.get_pressed()
                         if pressed != []:
-                            self.v.save(pressed[0], x)
+                            result = int(pressed[0], 16)
+                            self.v.save(result, x)
                             break
                         time.sleep(
                             FREQ - ((time.time() - starttime) % FREQ))
