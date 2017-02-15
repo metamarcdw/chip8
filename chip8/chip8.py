@@ -101,6 +101,14 @@ class Registers(Memory):
     def __init__(self):
         super().__init__(size=16)
 
+    def __str__(self):
+        str_list = list()
+        for i, val in enumerate(self._bytes):
+            str_list.append("V{0}: {1}\t".format(hex(i)[2:], val))
+            if (i + 1) % 4 == 0:
+                str_list.append("\n")
+        return "".join(str_list)
+
 
 class Sprite(Memory):
     """ Sprite object, wraps a list of 'size' Bytes.
@@ -307,6 +315,7 @@ class Chip8:
         self.keyboard = Keyboard()
         self.display = Display()
         self.buzzing = False
+        self.step_mode = False
 
         self.load_font()
         if prog_path:
@@ -347,11 +356,26 @@ class Chip8:
         if self.pc > 0xfff:
             sys.exit(0)
 
+    def print_register(self, index):
+        val = self.v.load(index)
+        print("V{0}: {1}".format(hex(index)[2:], val))
+
     def emulate_cycle(self):
         """ Emulate one processor cycle. """
         opcode = self.fetch()
         print("EXECUTING OPCODE:{0} PC:{1} SP:{2} I:{3}".format(
-            opcode.zfill(4), self.pc, self.call_stack.size(), self.i))
+            opcode.zfill(4), self.pc - 2, self.call_stack.size(), self.i))
+        if self.step_mode:
+            str_ = input()
+            if str_ in ("Q", "q"):
+                sys.exit(0)
+            elif str_.startswith("v"):
+                reg = int(str_[1], 16)
+                self.print_register(reg)
+            elif str_ == "dump":
+                print(str(self.v))
+                print("Call Stack: {} <-top\n".format(
+                    self.call_stack.list_()))
         instr = self.decode(int(opcode, 16))
         self.execute(instr)
         self.decrement_timers()
@@ -603,6 +627,7 @@ def main():
     progpath = os.path.abspath(
         os.path.join(basepath, "..", "roms", PROG))
     vm = Chip8(progpath)
+    # vm.step_mode = True
     vm.run()
 
 if __name__ == "__main__":
