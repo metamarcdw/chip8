@@ -460,9 +460,9 @@ class Chip8:
             elif n == 0x6:
                 # SHR Vx {, Vy}
                 lsb = 0
-                if BitArray(vx)[-1]:
+                if BitArray(vy)[-1]:
                     lsb = 1
-                result = vx >> 1
+                result = vy >> 1
                 self.v.save(result, x)
                 self.v.save(lsb, 0xf)
             elif n == 0x7:
@@ -478,9 +478,9 @@ class Chip8:
             elif n == 0xe:
                 # SHL Vx {, Vy}
                 msb = 0
-                if BitArray(vx)[0]:
+                if BitArray(vy)[0]:
                     msb = 1
-                result = vx << 1
+                result = vy << 1
                 self.v.save(result, x)
                 self.v.save(msb, 0xf)
             else:
