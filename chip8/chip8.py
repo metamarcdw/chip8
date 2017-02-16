@@ -555,16 +555,12 @@ class Chip8:
                     self.v.save(self.dt, x)
                 elif n == 0xa:
                     # LD Vx, K
-                    FREQ = 1 / 60
-                    starttime=time.time()
-                    while True:
-                        pressed = self.keybord.get_pressed()
-                        if pressed != []:
-                            result = int(pressed[0], 16)
-                            self.v.save(result, x)
-                            break
-                        time.sleep(
-                            FREQ - ((time.time() - starttime) % FREQ))
+                    pressed = self.keybord.get_pressed()
+                    if pressed != []:
+                        result = int(pressed[0], 16)
+                        self.v.save(result, x)
+                    else:
+                        self.pc -= 2
                 else:
                     raise BadOpcodeError("Trying to execute bad opcode.")
             elif y == 0x1:
