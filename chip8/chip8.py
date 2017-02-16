@@ -623,12 +623,17 @@ class Chip8:
 
 
 def main():
-    PROG = "MERLIN"
+    if sys.argv[1] == "-s":
+        step = True
+        prog = sys.argv[2].upper()
+    else:
+        step = False
+        prog = sys.argv[1].upper()
     basepath = os.path.dirname(__file__)
     progpath = os.path.abspath(
-        os.path.join(basepath, "..", "roms", PROG))
+        os.path.join(basepath, "..", "roms", prog))
     vm = Chip8(progpath)
-    # vm.step_mode = True
+    vm.step_mode = step
     vm.run()
 
 if __name__ == "__main__":
