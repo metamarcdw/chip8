@@ -590,12 +590,14 @@ class Chip8:
                 # LD [I], Vx
                 for i in range(x + 1):
                     byte = self.v.load(i)
-                    self.mem.save(byte, self.i + i)
+                    self.mem.save(byte, self.i)
+                    self.i += 1
             elif y == 0x6 and n == 0x5:
                 # LD Vx, [I]
                 for i in range(x + 1):
-                    byte = self.mem.load(self.i + i)
+                    byte = self.mem.load(self.i)
                     self.v.save(byte, i)
+                    self.i += 1
             else:
                 raise BadOpcodeError("Trying to execute bad opcode.")
 
