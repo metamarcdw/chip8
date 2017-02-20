@@ -400,7 +400,9 @@ class Chip8:
         return instr
 
     def execute(self, instr):
-        """ Execute a decoded instruction! """
+        """ Execute a decoded instruction!
+            Raises BadOpcodeError if instruction
+            is not recognized. """
         oper, x, y, n, kk, nnn = instr
         vx, vy = (self.v.load(x), self.v.load(y))
 
@@ -484,7 +486,7 @@ class Chip8:
             elif n == 0x6:
                 # SHR Vx {, Vy}
                 lsb = 0
-                if BitArray(vy)[-1]:
+                if BitArray(hex(vy))[-1]:
                     lsb = 1
                 result = vy >> 1
                 self.v.save(result, x)
@@ -502,9 +504,10 @@ class Chip8:
             elif n == 0xe:
                 # SHL Vx {, Vy}
                 msb = 0
-                if BitArray(vy)[0]:
+                if BitArray(hex(vy))[0]:
                     msb = 1
                 result = vy << 1
+                result = result % 0x100
                 self.v.save(result, x)
                 self.v.save(msb, 0xf)
             else:
