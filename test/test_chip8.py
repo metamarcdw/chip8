@@ -80,10 +80,9 @@ def update_program(opcode_list):
     """ Helper function. Assemble a new program,
         wipe the old, and load the new into memory.
     """
+    vm.__init__()
     prog = asm(opcode_list)
-    vm.wipe_program()
     vm.load_program(prog)
-    vm.pc = 0x200
 
 """
 def test_opcode_CLS():
@@ -98,4 +97,19 @@ def test_opcode_CLS():
     d_bytes = vm.display.load_bytes(5, 5, 5)
     assert d_bytes == [0xf0, 0x90, 0xf0, 0x90, 0x90]
 """
+
+def test_opcode_RET():
+    code = [    "2204", # CALL 0x204
+                "0000", # blank
+                "00ee"] # RET
+    update_program(code)
+    assert vm.pc == 0x200
+    vm.emulate_cycle()
+    assert vm.pc == 0x204
+    assert vm.call_stack.size() == 1
+    assert vm.call_stack.peek() == 0x202
+    vm.emulate_cycle()
+    assert vm.call_stack.size() == 0
+    assert vm.pc == 0x202
+
 
