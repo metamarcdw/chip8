@@ -350,11 +350,6 @@ class Chip8:
         for i, byte in enumerate(list_):
             self.mem.save(byte, addr + i)
 
-    def wipe_program(self):
-        """ Zero wipes memory starting at position 0x200. """
-        for i in range(0x200, 0x1000):
-            self.mem.save(0x00, i)
-
     def increment_pc(self):
         """ Increment the program counter. """
         self.pc += 2
@@ -392,7 +387,7 @@ class Chip8:
         """ Fetch an opcode from program memory. """
         b1 = self.mem.load(self.pc)
         b2 = self.mem.load(self.pc + 1)
-        opcode = (BitArray(hex(b1)) + BitArray(hex(b2))).hex
+        opcode = hex((b1 << 8) + b2)[2:]
         self.increment_pc()
         return opcode
 
