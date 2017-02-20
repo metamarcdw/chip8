@@ -45,10 +45,10 @@ def test_draw_glyph():
 def test_x_error():
     with pytest.raises(ValueError):
         glyph = display.glyph_sprites[0xf]
-        display.draw_sprite(60, 0, glyph)
+        display.draw_sprite(57, 0, glyph)
 
 def test_y_error():
     with pytest.raises(ValueError):
-        display.load_bytes(0, 30, 5)
+        display.load_bytes(0, 28, 5)
 
 

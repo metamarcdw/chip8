@@ -221,14 +221,12 @@ class Display:
 
     def _check_boundary(self, x, y, sprite_width, sprite_height):
         """ Raises ValueError if accessing outside of display."""
-        xerr = False
-        if x < 0 or x + sprite_width > self.WIDTH:
-            xerr = True
-        yerr = False
-        if y < 0 or y + sprite_height > self.HEIGHT:
-            yerr = True
-        if xerr or yerr:
-            raise ValueError("Accessing outside of display.")
+        if (0 <= x <= (self.WIDTH - 1) and
+            0 <= y <= (self.HEIGHT - sprite_height)):
+            pass
+        else:
+            raise ValueError(
+                "Accessing outside of display. X:{0} Y:{1}".format(x, y))
 
     def load_bytes(self, x, y, size):
         """ Load some bytes from the display. """
@@ -253,8 +251,8 @@ class Display:
         """ Check a display byte against a xor'd byte.
             Return true if collision, or False if not.
         """
-        d_ba = BitArray(hex(d_byte))
-        x_ba = BitArray(hex(x_byte))
+        d_ba = BitArray(hex(d_byte).ljust(8, "0"))
+        x_ba = BitArray(hex(x_byte).ljust(8, "0"))
         for i, bit in enumerate(d_ba):
             if bit and not x_ba[i]:
                 return True
@@ -283,7 +281,7 @@ class Display:
         """ Return all display data as a 'bytes' object. """
         data = BitArray()
         for line in self._pixels:
-            data += line
+            data += line[:self.WIDTH]
         return data.bytes
 
     def __str__(self):
@@ -446,8 +444,7 @@ class Chip8:
         elif oper == 0x7:
             # ADD Vx, byte
             result = vx + kk
-            if result > 0xff:
-                result = result % 0x100
+            result = result % 0x100
             self.v.save(result, x)
         elif oper == 0x8:
             if n == 0x0:
@@ -479,7 +476,7 @@ class Chip8:
                 not_borrow = 0
                 if vx > vy:
                     not_borrow = 1
-                else:
+                elif vx < vy:
                     vx += 0x100
                 result = vx - vy
                 self.v.save(result, x)
@@ -497,7 +494,7 @@ class Chip8:
                 not_borrow = 0
                 if vy > vx:
                     not_borrow = 1
-                else:
+                elif vy < vx:
                     vy += 0x100
                 result = vy - vx
                 self.v.save(result, x)
@@ -555,7 +552,7 @@ class Chip8:
                     self.v.save(self.dt, x)
                 elif n == 0xa:
                     # LD Vx, K
-                    pressed = self.keybord.get_pressed()
+                    pressed = self.keyboard.get_pressed()
                     if pressed != []:
                         result = int(pressed[0], 16)
                         self.v.save(result, x)
@@ -615,7 +612,7 @@ class Chip8:
 
     def run(self):
         """ Run processor cycles at 60Hz. """
-        FREQ = 1 / 60
+        FREQ = 1 / 6000
         starttime=time.time()
         while True:
             self.emulate_cycle()

@@ -85,12 +85,12 @@ def update_program(opcode_list):
     vm.load_program(prog)
 
 """
-def test_opcode_CLS():
-    code = [    "600a", # LOAD 0x0a into v0
-                "6105", # LOAD 0x05 into v1
-                "6205", # LOAD 0x05 into v2
-                "f029", # LOAD index for glyph of v0 into I
-                "d125"] # DRAW sprite from I at (v1, v2)
+def test_opcode_DRW_CLS():
+    code = [    "600a", # LD v0, 0x0a
+                "6105", # LD v1, 0x05
+                "6205", # LD v2, 0x05
+                "f029", # LD F, v0
+                "d125"] # DRW (v1, v2), 0x5
     update_program(code)
     for i in range(len(code)):
         vm.emulate_cycle()
@@ -98,10 +98,10 @@ def test_opcode_CLS():
     assert d_bytes == [0xf0, 0x90, 0xf0, 0x90, 0x90]
 """
 
-def test_opcode_RET():
-    code = [    "2204", # CALL 0x204
-                "0000", # blank
-                "00ee"] # RET
+def test_opcode_CALL_RET():
+    code = [    "2204", # 200| CALL 0x204
+                "0000", # 202| blank
+                "00ee"] # 204| RET
     update_program(code)
     assert vm.pc == 0x200
     vm.emulate_cycle()
@@ -111,5 +111,21 @@ def test_opcode_RET():
     vm.emulate_cycle()
     assert vm.call_stack.size() == 0
     assert vm.pc == 0x202
+
+def test_opcode_JP_addr():
+    code = ["1210"]
+    update_program(code)
+    assert vm.pc == 0x200
+    vm.emulate_cycle()
+    assert vm.pc == 0x210
+
+def test_opcode_LD_SE_vx_byte():
+    code = [    "6023", # 200| LD v0, 0x23
+                "3023"] # 202| SE v0, 0x23
+    update_program(code)
+    vm.emulate_cycle()
+    assert vm.pc == 0x202
+    vm.emulate_cycle()
+    assert vm.pc == 0x206
 
 
