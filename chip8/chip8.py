@@ -612,7 +612,7 @@ class Chip8:
 
     def run(self):
         """ Run processor cycles at 60Hz. """
-        FREQ = 1 / 6000
+        FREQ = 1 / 600
         starttime=time.time()
         while True:
             self.emulate_cycle()
