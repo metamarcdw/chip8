@@ -350,6 +350,11 @@ class Chip8:
         for i, byte in enumerate(list_):
             self.mem.save(byte, addr + i)
 
+    def wipe_program(self):
+        """ Zero wipes memory starting at position 0x200. """
+        for i in range(0x200, 0x1000):
+            self.mem.save(0x00, i)
+
     def increment_pc(self):
         """ Increment the program counter. """
         self.pc += 2
