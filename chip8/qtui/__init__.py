@@ -17,6 +17,8 @@ class Chip8Window(QtGui.QMainWindow,
         self.setupUi(self)
 
         fn = QtGui.QFileDialog.getOpenFileName()
+        if not fn:
+            sys.exit(0)
         self.vm = chip8.Chip8(fn)
         self.vm_thread = VMThread(self.vm)
         self.vm_thread.start()
