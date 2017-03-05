@@ -219,21 +219,30 @@ class Display:
         for y in range(self.HEIGHT):
             self._pixels.append(BitArray(self.WIDTH))
 
-    def _check_boundary(self, x, y, sprite_width, sprite_height):
+    def _check_boundary(self, x, y):
         """ Raises ValueError if accessing outside of display."""
-        if (0 <= x <= (self.WIDTH - 1) and
-            0 <= y <= (self.HEIGHT - sprite_height)):
+        if (0 <= x < self.WIDTH and
+            0 <= y < self.HEIGHT):
             pass
         else:
             raise ValueError(
                 "Accessing outside of display. X:{0} Y:{1}".format(x, y))
 
+    @staticmethod
+    def _ba_from_byte(byte):
+        return BitArray("0x{}".format(hex(byte)[2:].zfill(2)))
+
     def load_bytes(self, x, y, size):
         """ Load some bytes from the display. """
-        self._check_boundary(x, y, 8, size)
+        # self._check_boundary(x, y)
         bytes_ = list()
         for i in range(size):
-            byte = int(self._pixels[y + i][x:x+8].bin, 2)
+            yi = (y + i) % self.HEIGHT
+            ba = BitArray(8)
+            for j in range(8):
+                xj = (x + j) % self.WIDTH
+                ba[j] = self._pixels[yi][xj]
+            byte = int(ba.hex, 16)
             bytes_.append(byte)
         return bytes_
 
@@ -241,18 +250,22 @@ class Display:
         """ Save some bytes to the display.
             Raises ValueError if saving outside of display.
         """
-        self._check_boundary(x, y, 8, len(bytes_))
+        # self._check_boundary(x, y)
         for i, byte in enumerate(bytes_):
-            d_line = self._pixels[y+i]
-            d_line[x:x+8] = byte
+            ba = self._ba_from_byte(byte)
+            yi = (y + i) % self.HEIGHT
+            d_line = self._pixels[yi]
+            for j in range(8):
+                xj = (x + j) % self.WIDTH
+                d_line[xj] = ba[j]
 
     @staticmethod
     def _check_collision(d_byte, x_byte):
         """ Check a display byte against a xor'd byte.
             Return true if collision, or False if not.
         """
-        d_ba = BitArray(hex(d_byte).ljust(8, "0"))
-        x_ba = BitArray(hex(x_byte).ljust(8, "0"))
+        d_ba = Display._ba_from_byte(d_byte)
+        x_ba = Display._ba_from_byte(x_byte)
         for i, bit in enumerate(d_ba):
             if bit and not x_ba[i]:
                 return True
