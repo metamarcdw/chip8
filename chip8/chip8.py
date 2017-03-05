@@ -232,7 +232,7 @@ class Display:
 
     @staticmethod
     def _ba_from_byte(byte):
-        """ """
+        """ Convert an int to an 8bit BitArray. """
         return BitArray("0x{}".format(hex(byte)[2:].zfill(2)))
 
     def load_bytes(self, x, y, size):
@@ -318,6 +318,8 @@ class Chip8:
         """ CHIP-8 Initializer.
             Initialize all components and load program.
         """
+        self.clock_speed = 500 #Hz
+
         self.pc = 0x200
         self.i = 0x0000
         self.dt = 0x00
@@ -569,7 +571,7 @@ class Chip8:
             if y == 0x0:
                 if n == 0x7:
                     # LD Vx, DT
-                    self.v.save(self.dt, x)
+                    self.v.save(int(self.dt), x)
                 elif n == 0xa:
                     # LD Vx, K
                     pressed = self.keyboard.get_pressed()
@@ -620,10 +622,11 @@ class Chip8:
 
     def decrement_timers(self):
         """ Decrement the timers every cycle. """
+        timer_freq = 60
         if self.dt > 0:
-            self.dt -= 1
+            self.dt -= timer_freq / self.clock_speed
         if self.st > 0:
-            self.st -= 1
+            self.st -= timer_freq / self.clock_speed
             self.buzzing = True
             print("BUZZ!")
         else:
@@ -632,7 +635,7 @@ class Chip8:
 
     def run(self):
         """ Run processor cycles at 60Hz. """
-        FREQ = 1 / 600
+        FREQ = 1 / self.clock_speed
         starttime=time.time()
         while True:
             self.emulate_cycle()
