@@ -18,17 +18,14 @@ class Chip8Window(QtGui.QMainWindow,
         self.setupUi(self)
 
         # Init VM
-        fn = QtGui.QFileDialog.getOpenFileName()
-        if not fn:
-            sys.exit(0)
-        self.vm = chip8.Chip8(fn)
+        self.vm = chip8.Chip8()
         self.vm_thread = VMThread(self.vm)
 
         # Init output devices
         self.qsize = QtCore.QSize(
             self.vm.display.WIDTH, self.vm.display.HEIGHT)
         bmp = QtGui.QBitmap(self.qsize)
-        bmp.fill(QtCore.Qt.color1)
+        bmp.fill(QtCore.Qt.color0)
 
         self.scene = QtGui.QGraphicsScene(self.graphicsView)
         self.bmp_item = self.scene.addPixmap(bmp)
@@ -62,10 +59,6 @@ class Chip8Window(QtGui.QMainWindow,
         self.e_button.setup(keyboard, "E")
         self.f_button.setup(keyboard, "F")
 
-        # Start VM thread
-        self.vm_thread.start()
-
-
     def updateScreen(self):
         if self.vm.display.draw_flag:
             pixeldata = self.vm.display.get_data()
@@ -81,6 +74,18 @@ class Chip8Window(QtGui.QMainWindow,
     def resizeEvent(self, event):
         self.graphicsView.fitInView(
             self.scene.sceneRect(), mode=QtCore.Qt.KeepAspectRatio)
+
+    @QtCore.pyqtSignature("")
+    def on_actionLoad_ROM_triggered(self):
+        if not self.vm.rom_loaded:
+            fn = QtGui.QFileDialog.getOpenFileName()
+            self.vm.load_from_file(fn)
+            self.vm_thread.start()
+
+    @QtCore.pyqtSignature("")
+    def on_actionQuit_triggered(self):
+        self.close()
+        sys.exit(0)
 
     def keyPressEvent(self, event):
         if event.isAutoRepeat():

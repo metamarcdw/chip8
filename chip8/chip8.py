@@ -331,6 +331,7 @@ class Chip8:
 
         self.keyboard = Keyboard()
         self.display = Display()
+        self.rom_loaded = False
         self.step_mode = False
         self.play_callback = None
         self.stop_callback = None
@@ -367,6 +368,7 @@ class Chip8:
         addr = 0x200
         for i, byte in enumerate(list_):
             self.mem.save(byte, addr + i)
+        self.rom_loaded = True
 
     def increment_pc(self):
         """ Increment the program counter. """
@@ -634,7 +636,7 @@ class Chip8:
             self.stop_callback()
 
     def run(self):
-        """ Run processor cycles at 60Hz. """
+        """ Run processor cycles at 500Hz. """
         FREQ = 1 / self.clock_speed
         starttime=time.time()
         while True:
