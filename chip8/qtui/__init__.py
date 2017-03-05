@@ -75,12 +75,19 @@ class Chip8Window(QtGui.QMainWindow,
         self.graphicsView.fitInView(
             self.scene.sceneRect(), mode=QtCore.Qt.KeepAspectRatio)
 
+    def togglePause(self):
+        self.vm.pause_flag = (not self.vm.pause_flag)
+
     @QtCore.pyqtSignature("")
     def on_actionLoad_ROM_triggered(self):
         if not self.vm.rom_loaded:
             fn = QtGui.QFileDialog.getOpenFileName()
             self.vm.load_from_file(fn)
             self.vm_thread.start()
+
+    @QtCore.pyqtSignature("")
+    def on_actionPause_triggered(self):
+        self.togglePause()
 
     @QtCore.pyqtSignature("")
     def on_actionQuit_triggered(self):
@@ -143,6 +150,8 @@ class Chip8Window(QtGui.QMainWindow,
         elif key == QtCore.Qt.Key_F:
             keyboard.press("F")
             self.f_button.setFlat(True)
+        elif key == QtCore.Qt.Key_P:
+            self.togglePause()
 
     def keyReleaseEvent(self, event):
         if event.isAutoRepeat():

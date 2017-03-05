@@ -331,6 +331,8 @@ class Chip8:
 
         self.keyboard = Keyboard()
         self.display = Display()
+
+        self.pause_flag = False
         self.rom_loaded = False
         self.step_mode = False
         self.play_callback = None
@@ -395,9 +397,12 @@ class Chip8:
     def emulate_cycle(self):
         """ Emulate one processor cycle. """
         opcode = self.fetch()
-        print("EXECUTING OPCODE:{0} PC:{1} SP:{2} I:{3}".format(
-            opcode.zfill(4), self.pc - 2, self.call_stack.size(), self.i))
         if self.step_mode:
+            print("EXECUTING OPCODE:{0} PC:{1} SP:{2} I:{3}".format(
+                opcode.zfill(4),
+                self.pc - 2,
+                self.call_stack.size(),
+                self.i))
             self.debug()
         instr = self.decode(int(opcode, 16))
         self.execute(instr)
@@ -631,7 +636,7 @@ class Chip8:
         if self.st > 0:
             self.st -= timer_freq / self.clock_speed
             self.play_callback()
-            print("BUZZ!")
+            # print("BUZZ!")
         else:
             self.stop_callback()
 
@@ -640,7 +645,8 @@ class Chip8:
         FREQ = 1 / self.clock_speed
         starttime=time.time()
         while True:
-            self.emulate_cycle()
+            if not self.pause_flag:
+                self.emulate_cycle()
             time.sleep(FREQ - ((time.time() - starttime) % FREQ))
 
 

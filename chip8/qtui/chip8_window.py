@@ -102,7 +102,10 @@ class Ui_MainWindow(object):
         self.actionLoad_ROM.setObjectName(_fromUtf8("actionLoad_ROM"))
         self.actionQuit = QtGui.QAction(MainWindow)
         self.actionQuit.setObjectName(_fromUtf8("actionQuit"))
+        self.actionPause = QtGui.QAction(MainWindow)
+        self.actionPause.setObjectName(_fromUtf8("actionPause"))
         self.menuFile.addAction(self.actionLoad_ROM)
+        self.menuFile.addAction(self.actionPause)
         self.menuFile.addAction(self.actionQuit)
         self.menuBar.addAction(self.menuFile.menuAction())
 
@@ -132,6 +135,7 @@ class Ui_MainWindow(object):
         self.actionSave.setText(_translate("MainWindow", "Save", None))
         self.actionLoad_ROM.setText(_translate("MainWindow", "Load ROM", None))
         self.actionQuit.setText(_translate("MainWindow", "Quit", None))
+        self.actionPause.setText(_translate("MainWindow", "Pause", None))
 
 from .KeyButton import KeyButton
 
