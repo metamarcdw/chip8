@@ -87,14 +87,6 @@ class Chip8Window(QtGui.QMainWindow,
         self.close()
         sys.exit(0)
 
-    @QtCore.pyqtSignature("")
-    def on_actionLoad_triggered(self):
-        pass
-
-    @QtCore.pyqtSignature("")
-    def on_actionSave_triggered(self):
-        pass
-
     def keyPressEvent(self, event):
         if event.isAutoRepeat():
             event.ignore()

@@ -156,15 +156,7 @@
     <addaction name="actionLoad_ROM"/>
     <addaction name="actionQuit"/>
    </widget>
-   <widget class="QMenu" name="menuState">
-    <property name="title">
-     <string>State</string>
-    </property>
-    <addaction name="actionLoad"/>
-    <addaction name="actionSave"/>
-   </widget>
    <addaction name="menuFile"/>
-   <addaction name="menuState"/>
   </widget>
   <action name="actionLoad">
    <property name="text">
