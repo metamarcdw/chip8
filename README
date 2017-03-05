@@ -7,9 +7,10 @@ An active community of users and developers existed in the late 1970s, beginning
 ===============================================
 
 This is a CHIP8 interpreter written in Python 3 with a GUI built in PyQt4.
-All other dependencies can be installed using requirements.txt.
+All other dependencies can be installed using 'make init'.
 
 There are hotkeys enabled for all hexidecmal keys. There is also a hotkey
 "P" which pauses execution.
 
 https://github.com/metamarcdw/chip8/
+
