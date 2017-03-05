@@ -202,6 +202,7 @@ class Display:
         """
         self._init_font()
         self.clear_screen()
+        self.draw_flag = False
 
     def _init_font(self):
         """ Implements init of glyph_sprites. """
@@ -218,11 +219,12 @@ class Display:
         self._pixels = list()
         for y in range(self.HEIGHT):
             self._pixels.append(BitArray(self.WIDTH))
+        self.draw_flag = True
 
     def _check_boundary(self, x, y):
         """ Raises ValueError if accessing outside of display."""
-        if (0 <= x < self.WIDTH and
-            0 <= y < self.HEIGHT):
+        if (0 <= x <= self.WIDTH and
+            0 <= y <= self.HEIGHT):
             pass
         else:
             raise ValueError(
@@ -230,11 +232,12 @@ class Display:
 
     @staticmethod
     def _ba_from_byte(byte):
+        """ """
         return BitArray("0x{}".format(hex(byte)[2:].zfill(2)))
 
     def load_bytes(self, x, y, size):
         """ Load some bytes from the display. """
-        # self._check_boundary(x, y)
+        self._check_boundary(x, y)
         bytes_ = list()
         for i in range(size):
             yi = (y + i) % self.HEIGHT
@@ -250,14 +253,15 @@ class Display:
         """ Save some bytes to the display.
             Raises ValueError if saving outside of display.
         """
-        # self._check_boundary(x, y)
+        self._check_boundary(x, y)
         for i, byte in enumerate(bytes_):
-            ba = self._ba_from_byte(byte)
+            ba = Display._ba_from_byte(byte)
             yi = (y + i) % self.HEIGHT
             d_line = self._pixels[yi]
             for j in range(8):
                 xj = (x + j) % self.WIDTH
                 d_line[xj] = ba[j]
+        self.draw_flag = True
 
     @staticmethod
     def _check_collision(d_byte, x_byte):

@@ -57,12 +57,12 @@ class Chip8Window(QtGui.QMainWindow,
         self.f_button.setup(keyboard, "F")
 
     def updateScreen(self):
-        pixeldata = self.vm.display.get_data()
-        if pixeldata != self.old_pdata:
+        if self.vm.display.draw_flag:
+            pixeldata = self.vm.display.get_data()
             new_bmp = QtGui.QBitmap.fromData(
                 self.qsize, pixeldata, format=QtGui.QImage.Format_Mono)
             self.bmp_item.setPixmap(new_bmp)
-            self.old_pdata = pixeldata
+            self.vm.display.draw_flag = False
 
     def showEvent(self, event):
         self.graphicsView.fitInView(
