@@ -17,7 +17,8 @@ def test_chip8_class():
     assert isinstance(vm.call_stack, chip8.Stack)
     assert isinstance(vm.keyboard, chip8.Keyboard)
     assert isinstance(vm.display, chip8.Display)
-    assert not vm.buzzing
+    assert not vm.pause_flag
+    assert not vm.rom_loaded
     assert not vm.step_mode
 
 def test_vm_font_loaded():
@@ -56,12 +57,13 @@ def test_vm_decode():
 def test_decrement_timers():
     vm.dt = 1
     vm.st = 1
+    factor = 60/500
     vm.decrement_timers()
-    assert vm.dt == 0
-    assert vm.st == 0
+    assert vm.dt == 1 - factor
+    assert vm.st == 1 - factor
     vm.decrement_timers()
-    assert vm.dt == 0
-    assert vm.st == 0
+    assert vm.dt == 1 - factor * 2
+    assert vm.st == 1 - factor * 2
 
 def asm(opcode_list):
     """ Helper function, converts opcode

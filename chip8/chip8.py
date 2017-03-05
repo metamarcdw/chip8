@@ -634,9 +634,11 @@ class Chip8:
             self.dt -= timer_freq / self.clock_speed
         if self.st > 0:
             self.st -= timer_freq / self.clock_speed
-            self.play_callback()
-            # print("BUZZ!")
-        else:
+            if self.play_callback:
+                self.play_callback()
+            else:
+                print("BUZZ!")
+        elif self.stop_callback:
             self.stop_callback()
 
     def run(self):
