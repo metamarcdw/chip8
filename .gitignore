@@ -93,3 +93,5 @@ ENV/
 # CHIP-8 project settings
 *.swp
 roms/
+*.wav
+
