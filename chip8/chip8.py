@@ -237,7 +237,7 @@ class Display:
 
     def load_bytes(self, x, y, size):
         """ Load some bytes from the display. """
-        self._check_boundary(x, y)
+        # self._check_boundary(x, y)
         bytes_ = list()
         for i in range(size):
             yi = (y + i) % self.HEIGHT
@@ -253,7 +253,7 @@ class Display:
         """ Save some bytes to the display.
             Raises ValueError if saving outside of display.
         """
-        self._check_boundary(x, y)
+        # self._check_boundary(x, y)
         for i, byte in enumerate(bytes_):
             ba = Display._ba_from_byte(byte)
             yi = (y + i) % self.HEIGHT

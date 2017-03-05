@@ -82,8 +82,14 @@ class Chip8Window(QtGui.QMainWindow,
     def on_actionLoad_ROM_triggered(self):
         if not self.vm.rom_loaded:
             fn = QtGui.QFileDialog.getOpenFileName()
-            self.vm.load_from_file(fn)
-            self.vm_thread.start()
+            if fn:
+                self.vm.load_from_file(fn)
+                self.vm_thread.start()
+        else:
+            QtGui.QMessageBox.information(self,
+                "Load ROM",
+                "There is already a ROM loaded.",
+                QtGui.QMessageBox.Ok)
 
     @QtCore.pyqtSignature("")
     def on_actionPause_triggered(self):
