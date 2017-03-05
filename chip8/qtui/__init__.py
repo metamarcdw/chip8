@@ -36,9 +36,9 @@ class Chip8Window(QtGui.QMainWindow,
         screen_timer.timeout.connect(self.updateScreen)
         screen_timer.start((1 / FPS) * 1000)
 
-        self.buzz = QtGui.QSound("buzz.wav")
-        self.vm.play_callback = self.buzz.play
-        self.vm.stop_callback = self.buzz.stop
+        # self.buzz = QtGui.QSound("buzz.wav")
+        # self.vm.play_callback = self.buzz.play
+        # self.vm.stop_callback = self.buzz.stop
 
         # Init input device
         keyboard = self.vm.keyboard
@@ -90,6 +90,17 @@ class Chip8Window(QtGui.QMainWindow,
                 "Load ROM",
                 "There is already a ROM loaded.",
                 QtGui.QMessageBox.Ok)
+
+    @QtCore.pyqtSignature("")
+    def on_actionSpeed_triggered(self):
+        result = QtGui.QInputDialog.getInt(self,
+            "Clock Speed",
+            "Set CHIP-8 clock speed:",
+            value=500,
+            min=60,
+            max=5000)
+        if result[1]:
+            self.vm.clock_speed = result[0]
 
     @QtCore.pyqtSignature("")
     def on_actionPause_triggered(self):

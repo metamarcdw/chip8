@@ -642,13 +642,13 @@ class Chip8:
             self.stop_callback()
 
     def run(self):
-        """ Run processor cycles at 500Hz. """
-        FREQ = 1 / self.clock_speed
+        """ Run processor cycles at the specified frequency. """
         starttime=time.time()
         while True:
             if not self.pause_flag:
                 self.emulate_cycle()
-            time.sleep(FREQ - ((time.time() - starttime) % FREQ))
+            freq = 1 / self.clock_speed
+            time.sleep(freq - ((time.time() - starttime) % freq))
 
 
 def main():

@@ -154,6 +154,7 @@
      <string>File</string>
     </property>
     <addaction name="actionLoad_ROM"/>
+    <addaction name="actionSpeed"/>
     <addaction name="actionPause"/>
     <addaction name="actionQuit"/>
    </widget>
@@ -182,6 +183,11 @@
   <action name="actionPause">
    <property name="text">
     <string>Pause</string>
+   </property>
+  </action>
+  <action name="actionSpeed">
+   <property name="text">
+    <string>Speed</string>
    </property>
   </action>
  </widget>
