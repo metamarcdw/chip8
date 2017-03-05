@@ -13,16 +13,18 @@ class Chip8Window(QtGui.QMainWindow,
         chip8_window.Ui_MainWindow):
 
     def __init__(self, parent=None):
+        # Init MainWindow.
         QtGui.QWidget.__init__(self, parent)
         self.setupUi(self)
 
+        # Init VM
         fn = QtGui.QFileDialog.getOpenFileName()
         if not fn:
             sys.exit(0)
         self.vm = chip8.Chip8(fn)
         self.vm_thread = VMThread(self.vm)
-        self.vm_thread.start()
 
+        # Init output devices
         self.qsize = QtCore.QSize(
             self.vm.display.WIDTH, self.vm.display.HEIGHT)
         bmp = QtGui.QBitmap(self.qsize)
@@ -36,8 +38,12 @@ class Chip8Window(QtGui.QMainWindow,
         screen_timer = QtCore.QTimer(self)
         screen_timer.timeout.connect(self.updateScreen)
         screen_timer.start((1 / FPS) * 1000)
-        self.old_pdata = None
 
+        self.buzz = QtGui.QSound("buzz.wav")
+        self.vm.play_callback = self.buzz.play
+        self.vm.stop_callback = self.buzz.stop
+
+        # Init input device
         keyboard = self.vm.keyboard
         self.one_button.setup(keyboard, "1")
         self.two_button.setup(keyboard, "2")
@@ -55,6 +61,10 @@ class Chip8Window(QtGui.QMainWindow,
         self.d_button.setup(keyboard, "D")
         self.e_button.setup(keyboard, "E")
         self.f_button.setup(keyboard, "F")
+
+        # Start VM thread
+        self.vm_thread.start()
+
 
     def updateScreen(self):
         if self.vm.display.draw_flag:

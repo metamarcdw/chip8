@@ -331,8 +331,9 @@ class Chip8:
 
         self.keyboard = Keyboard()
         self.display = Display()
-        self.buzzing = False
         self.step_mode = False
+        self.play_callback = None
+        self.stop_callback = None
 
         self.load_font()
         if prog_path:
@@ -627,11 +628,10 @@ class Chip8:
             self.dt -= timer_freq / self.clock_speed
         if self.st > 0:
             self.st -= timer_freq / self.clock_speed
-            self.buzzing = True
+            self.play_callback()
             print("BUZZ!")
         else:
-            self.buzzing = False
-
+            self.stop_callback()
 
     def run(self):
         """ Run processor cycles at 60Hz. """
