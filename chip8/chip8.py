@@ -334,8 +334,6 @@ class Chip8:
         self.pause_flag = False
         self.rom_loaded = False
         self.step_mode = False
-        self.play_callback = None
-        self.stop_callback = None
 
         self.load_font()
         if prog_path:
@@ -378,10 +376,14 @@ class Chip8:
             sys.exit(0)
 
     def print_register(self, index):
+        """ Print some register to stdout. """
         val = self.v.load(index)
         print("V{0}: {1}".format(hex(index)[2:], val))
 
     def debug(self):
+        """ Step mode. Ask for input from user,
+            print requested state data to stdout.
+        """
         str_ = input()
         if str_ in ("Q", "q"):
             sys.exit(0)
@@ -634,12 +636,6 @@ class Chip8:
             self.dt -= timer_freq / self.clock_speed
         if self.st > 0:
             self.st -= timer_freq / self.clock_speed
-            if self.play_callback:
-                self.play_callback()
-            else:
-                print("BUZZ!")
-        elif self.stop_callback:
-            self.stop_callback()
 
     def run(self):
         """ Run processor cycles at the specified frequency. """

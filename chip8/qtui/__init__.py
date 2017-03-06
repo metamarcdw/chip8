@@ -36,10 +36,6 @@ class Chip8Window(QtGui.QMainWindow,
         screen_timer.timeout.connect(self.updateScreen)
         screen_timer.start((1 / FPS) * 1000)
 
-        # self.buzz = QtGui.QSound("buzz.wav")
-        # self.vm.play_callback = self.buzz.play
-        # self.vm.stop_callback = self.buzz.stop
-
         # Init input device
         keyboard = self.vm.keyboard
         self.one_button.setup(keyboard, "1")

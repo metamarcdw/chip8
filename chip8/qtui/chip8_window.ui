@@ -154,11 +154,17 @@
      <string>File</string>
     </property>
     <addaction name="actionLoad_ROM"/>
-    <addaction name="actionSpeed"/>
-    <addaction name="actionPause"/>
     <addaction name="actionQuit"/>
    </widget>
+   <widget class="QMenu" name="menuSpeed">
+    <property name="title">
+     <string>Speed</string>
+    </property>
+    <addaction name="actionSpeed"/>
+    <addaction name="actionPause"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuSpeed"/>
   </widget>
   <action name="actionLoad">
    <property name="text">
