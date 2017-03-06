@@ -220,15 +220,6 @@ class Display:
             self._pixels.append(BitArray(self.WIDTH))
         self.draw_flag = True
 
-    def _check_boundary(self, x, y):
-        """ Raises ValueError if accessing outside of display."""
-        if (0 <= x <= self.WIDTH and
-            0 <= y <= self.HEIGHT):
-            pass
-        else:
-            raise ValueError(
-                "Accessing outside of display. X:{0} Y:{1}".format(x, y))
-
     @staticmethod
     def _ba_from_byte(byte):
         """ Convert an int to an 8bit BitArray. """
@@ -236,7 +227,6 @@ class Display:
 
     def load_bytes(self, x, y, size):
         """ Load some bytes from the display. """
-        # self._check_boundary(x, y)
         bytes_ = list()
         for i in range(size):
             yi = (y + i) % self.HEIGHT
@@ -252,7 +242,6 @@ class Display:
         """ Save some bytes to the display.
             Raises ValueError if saving outside of display.
         """
-        # self._check_boundary(x, y)
         for i, byte in enumerate(bytes_):
             ba = Display._ba_from_byte(byte)
             yi = (y + i) % self.HEIGHT
